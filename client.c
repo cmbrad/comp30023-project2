@@ -6,18 +6,17 @@
 #include <netdb.h>
 #include <string.h>
 #include <stdlib.h>
+#include "move.h"
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
-
-	char msgtobesent[25];
-
 	struct hostent *hp;
 	struct sockaddr_in sin;
 	char *host;
-	int len, numberofbytes, s, server_port, counter;
-
-	if(argc==3){
+	int s, server_port;
+	move_t move;
+	
+	if (argc == 3) {
 		host = argv[1];
 		server_port = atoi(argv[2]);
 	}
@@ -54,13 +53,11 @@ int main(int argc, char * argv[])
 		close(s);
 		exit(1);
 	}
-	uint8_t move = 1;
-	while(fgets(msgtobesent,sizeof(msgtobesent),stdin))
+	while(scanf("%hd", &move))
 	{
-		msgtobesent[24]='\0';
-		len=strlen(msgtobesent)+1;
-		send(s,&move,sizeof(move),0);
-		move += 1;
+		printf("Send move: %d\n", move);
+		move = htons(move);
+		send(s, &move, sizeof(move), 0);
 	}
 	close(s);
 }

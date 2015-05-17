@@ -8,6 +8,7 @@
 typedef struct game {
 	player_t **players;
 	int num_players;
+	int winner;
 } game_t;
 
 
