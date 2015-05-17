@@ -1,102 +1,7 @@
-/* Connect 4: a simple text based implementation */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-	/* number of columns in the game */
-#define WIDTH		7
-
-	/* number of slots in each column */
-#define HEIGHT		6
-
-	/* number in row required for victory */
-#define STRAIGHT	4
-
-	/* sign that a cell is still empty */
-#define EMPTY		' '
-
-	/* the two colours used in the game */
-#define RED		'R'
-#define YELLOW		'Y'
-
-	/* horizontal size of each cell in the display grid */
-#define WGRID	5
-
-	/* vertical size of each cell in the display grid */
-#define HGRID	3
-
-#define RSEED	876545678
-
-typedef char c4_t[HEIGHT][WIDTH];
-
-void print_config(c4_t);
-void init_empty(c4_t);
-int do_move(c4_t, int, char);
-void undo_move(c4_t, int);
-int get_move(c4_t);
-int move_possible(c4_t);
-char winner_found(c4_t);
-int rowformed(c4_t,  int r, int c);
-int explore(c4_t, int r_fix, int c_fix, int r_off, int c_off);
-int suggest_move(c4_t board, char colour);
-
-int
-main(int argc, char **argv) {
-
-	c4_t board;
-	int move;
-
-	srand(RSEED);
-	init_empty(board);
-	print_config(board);
-
-	/* main loop does two moves each iteration, one from the human
-	 * playing, and then one from the computer program (or game server)
-	 */
-	while ((move = get_move(board)) != EOF) {
-		/* process the person's move */
-		if (do_move(board, move, YELLOW)!=1) {
-			printf("Panic\n");
-			exit(EXIT_FAILURE);
-		}
-		print_config(board);
-		/* and did they win??? */
-		if (winner_found(board) == YELLOW) {
-			/* rats, the person beat us! */
-			printf("Ok, you beat me, beginner's luck!\n");
-			exit(EXIT_SUCCESS);
-		}
-		/* was that the last possible move? */
-		if (!move_possible(board)) {
-			/* yes, looks like it was */
-			printf("An honourable draw\n");
-			exit(EXIT_SUCCESS);
-		}
-		/* otherwise, look for a move from the computer */
-		move = suggest_move(board, RED);
-		/* pretend to be thinking hard */
-		printf("Ok, let's see now....");
-		sleep(1);
-		/* then play the move */
-		printf(" I play in column %d\n", move);
-		if (do_move(board, move, RED)!=1) {
-			printf("Panic\n");
-			exit(EXIT_FAILURE);
-		}
-		print_config(board);
-		/* and did we win??? */
-		if (winner_found(board) == RED) {
-			/* yes!!! */
-			printf("I guess I have your measure!\n");
-			exit(EXIT_SUCCESS);
-		}
-		/* otherwise, the game goes on */
-	}
-	printf("\n");
-	return 0;
-}
+#include "connect4.h"
 
 /* Initialise the playing array to empty cells */
 void
@@ -114,6 +19,9 @@ init_empty(c4_t board) {
  */
 int
 do_move(c4_t board, int c, char colour) {
+	if (c <= 0 || c > WIDTH)
+		return 0;
+
 	int r=0;
 	/* first, find the next empty slot in that column */
 	while ((r<HEIGHT) && (board[r][c-1]!=EMPTY)) {
@@ -237,8 +145,7 @@ print_config(c4_t board) {
 
 /* Is there a winning position on the current board?
  */
-char
-winner_found(c4_t board) {
+char winner_found(c4_t board) {
 	int r, c;
 	/* check exhaustively from every position on the board
 	 * to see if there is a winner starting at that position.

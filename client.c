@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "move.h"
+#include "connect4.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +16,11 @@ int main(int argc, char *argv[])
 	char *host;
 	int s, server_port;
 	move_t move;
+
+	c4_t board;
+
+	init_empty(board);
+	print_config(board);
 	
 	if (argc == 3) {
 		host = argv[1];
@@ -36,7 +42,7 @@ int main(int argc, char *argv[])
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 	memcpy((char *)&sin.sin_addr, hp->h_addr_list[0], hp->h_length);
-	sin.sin_port =htons(server_port);
+	sin.sin_port = htons(server_port);
 
 	/* Active open */
 	/* Preliminary steps: Setup: creation of active open socket*/
@@ -55,9 +61,20 @@ int main(int argc, char *argv[])
 	}
 	while(scanf("%hd", &move))
 	{
-		printf("Send move: %d\n", move);
+		printf("%lu %lu %lu\n", sizeof(int8_t), sizeof(int16_t), sizeof(int32_t));
+		printf("Send move: %hd, sizeof(move)=%lu\n", move, sizeof(move));
 		move = htons(move);
 		send(s, &move, sizeof(move), 0);
+
+		do_move(board, ntohs(move), YELLOW);
+		print_config(board);
+
+		move_t op_move;
+		recv(s, &op_move, sizeof(op_move), 0);
+		printf("Opponent did this: %d\n", op_move);
+
+		do_move(board, op_move, RED);
+		print_config(board);
 	}
 	close(s);
 }
