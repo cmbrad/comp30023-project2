@@ -19,8 +19,6 @@ int main(int argc, char *argv[])
 
 	c4_t board;
 
-	init_empty(board);
-	print_config(board);
 	
 	if (argc == 3) {
 		host = argv[1];
@@ -59,6 +57,10 @@ int main(int argc, char *argv[])
 		close(s);
 		exit(1);
 	}
+	
+	// We have a connection! Actually make the board.	
+	init_empty(board);
+	print_config(board);
 	while(scanf("%hd", &move))
 	{
 		printf("%lu %lu %lu\n", sizeof(int8_t), sizeof(int16_t), sizeof(int32_t));
