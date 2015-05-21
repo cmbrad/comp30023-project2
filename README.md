@@ -15,3 +15,7 @@ Game:
 		Listen on port X
 		Accept connection
 		if
+
+Server:
+	Address: nectar.cy.id.au
+	Port: 5555
