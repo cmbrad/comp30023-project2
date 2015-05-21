@@ -2,11 +2,11 @@ CC = gcc
 CFLAGS = -Wall -std=c11
 LDFLAGS = -lm -lpthread
 
-S_SRC = game.c player.c server.c connect4.c
-S_OBJ = game.o player.o server.o connect4.o
+S_SRC = game.c player.c server.c connect4.c log.c
+S_OBJ = game.o player.o server.o connect4.o log.o
 
-C_SRC = game.c player.c client.c connect4.c
-C_OBJ = game.o player.o client.o connect4.o
+C_SRC = game.c player.c client.c connect4.c log.c
+C_OBJ = game.o player.o client.o connect4.o log.o
 
 all: client server
 
@@ -24,10 +24,11 @@ clobber: clean
 
 ## Dependencies
 
-game.o: game.c game.h player.h move.h
+game.o: game.c game.h player.h move.h log.h
 player.o: player.c player.h
 connect4.o: connect4.c connect4.h
+log.o: log.c log.h move.h
 
-server.o: server.c game.h player.h
+server.o: server.c game.h player.h log.h
 
 client.o: client.c game.h player.h move.h

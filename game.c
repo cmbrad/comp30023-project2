@@ -9,11 +9,14 @@
 #include "stdlib.h"
 #include "game.h"
 #include "player.h"
+#include "targs.h"
+#include "log.h"
 
 void *game_start(void *params) {
+	targs_t *targs = (targs_t *)params;
 	player_t *players[MAX_PLAYERS];
-	
-	players[0] = (player_t *)params;
+
+	players[0] = targs->player;
 	players[0]->get_move = human_move;
 	players[0]->colour = YELLOW;
 	players[0]->notify_move = human_notify;
@@ -22,7 +25,10 @@ void *game_start(void *params) {
 	players[1]->colour = RED;
 	players[1]->notify_move = ai_notify;
 
+	log_connect(targs->log_file, AI_IP, players[0]->soc_id);
+
 	game_t *game = game_create(players, MAX_PLAYERS);
+	game->log_file = targs->log_file;
 	printf("Created game!\n");
 	game_process(game);
 	printf("Game over. %d won.\n", game->winner);
@@ -54,7 +60,7 @@ void game_process(game_t *game) {
 			} else {
 				// Get move from current player
 				move = cur_p->get_move(cur_p->soc_id, board);
-
+				log_move(game->log_file, cur_p->ip, cur_p->soc_id, move);
 				// Notify other players of move...
 				for (int j = 0; j < game->num_players; j++) {
 					if (game->players[j] == cur_p)

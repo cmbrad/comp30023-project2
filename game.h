@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "player.h"
 #include "connect4.h"
 
@@ -10,6 +11,7 @@ typedef struct game {
 	player_t **players;
 	int num_players;
 	int winner;
+	FILE *log_file;
 } game_t;
 
 

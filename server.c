@@ -11,6 +11,8 @@
 
 #include "game.h"
 #include "player.h"
+#include "targs.h"
+#include "log.h"
 
 #define MAX_GAMES 1024
 
@@ -20,7 +22,10 @@ int main (int argc, char *argv[])
 	socklen_t len;
 	int s, new_s, server_port;
 
-	if(argc == 2){
+	FILE *log_file = fopen("log.txt", "ab+");
+
+	log_write(log_file, "Started.");
+	if(argc == 2) {
 		server_port = atoi(argv[1]);
 	}
 	else {
@@ -84,7 +89,12 @@ int main (int argc, char *argv[])
 			printf("new_s=%d\n", new_s);
 
 			player_t *player = player_create(new_s, player_ip);
-			pthread_create(&thread0, NULL, game_start, player);
+
+			targs_t *targs = malloc(sizeof(*targs));
+			targs->player = player;
+			targs->log_file = log_file;
+
+			pthread_create(&thread0, NULL, game_start, targs);
 		// Pass connection off to a thread to handle.. 
 		}
 		//while (len = recv(new_s, &msg, sizeof(msg), 0)) { 
@@ -94,6 +104,8 @@ int main (int argc, char *argv[])
 		//close(new_s);
 	}
 	close(s);
+
+	fclose(log_file);
 
 	return 1;
 }
