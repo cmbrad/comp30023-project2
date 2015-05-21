@@ -34,7 +34,7 @@ void game_process(game_t *game) {
 
 	srand(RSEED);
 	init_empty(board);
-	print_config(board);
+	//print_config(board);
 
 	move_t move = 0;
 	player_t *cur_p = NULL;
@@ -73,7 +73,7 @@ void game_process(game_t *game) {
 					game->winner = -2;
 					break;
 				}
-				print_config(board);
+				// print_config(board);
 
 				/* and did we win??? */
 				if (winner_found(board) == YELLOW || winner_found(board) == RED) {
