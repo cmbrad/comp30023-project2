@@ -1,0 +1,53 @@
+Name & ID: Christopher Bradley <635847>
+Username : bradleyc1
+
+##############
+# Question 1 #
+##############
+a) Regular practice, TLS does this
+b) Pretty good. Sig on message could betray data
+c) Bad, can strip off signature & resign. Then send encrypted message as come from new person!
+
+##############
+# Question 2 #
+##############
+You should definitely compress then encrypt. Encryption, if done will, will
+basically turn any nice structured data you have into what appears to be
+completely random data.
+Compression relies on finding patterns in data, and encryption will almost
+certainly remove any concievable patterh from the data. Properly encrypted
+data is almost impossible to compress. While you could run encrypted data
+through a compression algorithm, there isn't really a point.
+
+##############
+# Question 3 #
+##############
+a) If you are using a randomly-chosen key of 128 bits, how long does it take to test them all?
+Number of keys = 2^128 = 3.4028237e+38
+Operations per second = 10^6 = 1000000
+Operations per year   = ops/s * 60 * 60 * 24 * 365
+                      = 10^6 * 60 * 60 * 24 * 365
+                      = 3.1536e+13
+
+Time to crack the key = Number of keys / Keys per year
+                      = 3.4028237e+38 / 3.1536e+13
+                      = 1.0790283e+25 years
+
+b) How about 256 bits?
+Number of keys = 2^256 = 1.1579209e+77
+Keys per year  = 3.1536e+13
+
+Time to crack = 1.579209e+77 / 3.1536e+13
+              = 5.0076389e+63 years
+
+c) What if your key is derived from a millisecond timer, and you know the day in which it was taken?
+86400000 possibilities
+1000000 operations per second
+= 86.4 seconds
+
+d) What if it was a millisecond timer, and you know the millennium in which it was taken?
+Possibilities: 86400000*365*1000
+= 3.1536e+13 (seconds)
+/ 1000000 ops/s
+
+31536000
