@@ -17,10 +17,10 @@ client: $(C_OBJ)
 	$(CC) $(CFLAGS) -o client $(C_OBJ) $(LDFLAGS)
 
 clean:
-	rm $(OBJ)
+	rm $(S_OBJ) client.o
 
 clobber: clean
-	rm $(EXE)
+	rm server client
 
 ## Dependencies
 
