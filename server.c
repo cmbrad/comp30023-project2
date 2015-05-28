@@ -1,3 +1,8 @@
+/*
+ * Author : Christopher Bradley <635847>
+ * Contact: bradleyc1@student.unimelb.edu.au
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -8,6 +13,7 @@
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "game.h"
 #include "player.h"
@@ -16,14 +22,19 @@
 
 #define MAX_GAMES 1024
 
+void closing(int sig);
+
+FILE *log_file = NULL;
+
 int main (int argc, char *argv[])
 {
 	struct sockaddr_in server, client;
 	socklen_t len;
 	int s, new_s, server_port;
-	FILE *log_file = NULL;
 
 	log_init(&log_file);
+
+	signal(SIGINT, closing);
 
 	//log_write(log_file, "Started.");
 	if(argc == 2) {
@@ -109,4 +120,10 @@ int main (int argc, char *argv[])
 	log_destroy(log_file);
 
 	return 1;
+}
+
+void closing(int sig) {
+	// we're quitting! quick, flush the log file
+	log_destroy(log_file);
+	exit(0);
 }
