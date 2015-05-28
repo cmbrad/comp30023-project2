@@ -1,3 +1,8 @@
+/*
+ * Author : Christopher Bradley <635847>
+ * Contact: bradleyc1@student.unimelb.edu.au
+ */
+
 #include <stdint.h>
 #include "move.h"
 #include "connect4.h"
