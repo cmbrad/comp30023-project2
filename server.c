@@ -19,6 +19,7 @@
 #include "player.h"
 #include "targs.h"
 #include "log.h"
+#include "status.h"
 
 #define MAX_GAMES 1024
 
@@ -32,6 +33,8 @@ int main (int argc, char *argv[])
 	socklen_t len;
 	int s, new_s, server_port;
 
+	pthread_t active_games[MAX_GAMES];
+	int active_cnt = 0;
 	log_init(&log_file);
 
 	signal(SIGINT, closing);
@@ -97,7 +100,6 @@ int main (int argc, char *argv[])
 			inet_ntop(AF_INET,&(client.sin_addr), player_ip, INET_ADDRSTRLEN);
 			//printf("connection accepted from client %s\n", player_ip);
 		
-			pthread_t thread0;
 			//printf("new_s=%d\n", new_s);
 
 			player_t *player = player_create(new_s, player_ip);
@@ -106,14 +108,8 @@ int main (int argc, char *argv[])
 			targs->player = player;
 			targs->log_file = log_file;
 
-			pthread_create(&thread0, NULL, game_start, targs);
-		// Pass connection off to a thread to handle.. 
+			pthread_create(&active_games[active_cnt++], NULL, game_start, targs);
 		}
-		//while (len = recv(new_s, &msg, sizeof(msg), 0)) { 
-		//	printf("%s", msg);
-		//}
-		//printf("lost connection.");
-		//close(new_s);
 	}
 	close(s);
 

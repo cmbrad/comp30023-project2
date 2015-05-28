@@ -12,7 +12,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include "move.h"
+#include "status.h"
 #include "connect4.h"
+
+void send_our_move(int s, move_t move);
+move_t get_opponent_move(int s);
+status_t get_status_update(int s);
+int check_win_state(int s);
 
 int main(int argc, char *argv[])
 {
@@ -21,9 +27,8 @@ int main(int argc, char *argv[])
 	char *host;
 	int s, server_port;
 	move_t move;
-
+	status_t status;
 	c4_t board;
-
 	
 	if (argc == 3) {
 		host = argv[1];
@@ -65,23 +70,70 @@ int main(int argc, char *argv[])
 	
 	// We have a connection! Actually make the board.	
 	init_empty(board);
+	// Print initial board so user has some idea what to do.
 	print_config(board);
-	while(scanf("%hd", &move))
-	{
-		//printf("%lu %lu %lu\n", sizeof(int8_t), sizeof(int16_t), sizeof(int32_t));
-		//printf("Send move: %hd, sizeof(move)=%lu\n", move, sizeof(move));
-		move = htons(move);
-		send(s, &move, sizeof(move), 0);
-
-		do_move(board, ntohs(move), YELLOW);
+	int game_over = 0;
+	while (!game_over) {
+		do {
+			printf("Enter a move to play: ");
+			scanf("%hd", &move);
+			// Send our move
+			send_our_move(s, move);
+			// Check if we played a valid move
+			status = get_status_update(s);
+		} while (status == STATUS_MOVE_INVALID);
+		
+		// Add the move to our own board
+		do_move(board, move, YELLOW);
+		// Only print board after a valid move
 		print_config(board);
 
-		move_t op_move;
-		recv(s, &op_move, sizeof(op_move), 0);
-		//printf("Opponent did this: %d\n", op_move);
-
-		do_move(board, op_move, RED);
+		// We might have won! Check.
+		if (check_win_state(s))
+			break;
+		
+		// Receive a move from our opponent
+		move = get_opponent_move(s);
+		// Add their move to our board
+		do_move(board, move, RED);
+		// Print board after AI move
 		print_config(board);
+
+		// The AI might have won... Check
+		if (check_win_state(s))
+			break;
 	}
+	// Game over! Close the socket
 	close(s);
+}
+
+void send_our_move(int s, move_t move) {
+	// Convert to network byte order for sending
+	move = htons(move);
+	send(s, &move, sizeof(move), 0);
+}
+
+move_t get_opponent_move(int s) {
+	move_t move;
+	recv(s, &move, sizeof(move), 0);
+	return ntohs(move);
+}
+
+status_t get_status_update(int s) {
+	status_t status;
+	recv(s, &status, sizeof(status), 0);
+	return ntohs(status);
+}
+
+int check_win_state(int s) {
+	status_t status = get_status_update(s);
+	if (status == STATUS_GAME_YELLOW_WIN) {
+		printf("Yay we won!\n");
+		return 1;
+	} else if (status == STATUS_GAME_RED_WIN) {
+		printf("Aww we lose :(\n");
+		return 1;
+	}
+
+	return 0;
 }

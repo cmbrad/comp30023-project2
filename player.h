@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include "move.h"
+#include "status.h"
 #include "connect4.h"
 
 #ifndef INCLUDE_PLAYER_H
@@ -14,8 +15,9 @@ typedef struct player {
 	int soc_id;    // Socket player is connectd to
 	char *ip;      // IP player is connecting from
 	char colour;
-	move_t (*get_move)(int soc_id, c4_t board);
-	void (*notify_move)(int soc_id, char player_colour, move_t move);
+	move_t (*get_move)(int, c4_t);
+	void (*notify_move)(int, char, move_t);
+	void (*notify_status)(int, status_t);
 } player_t;
 
 player_t *player_create(int, char*);

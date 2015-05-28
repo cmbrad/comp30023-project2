@@ -29,7 +29,7 @@ void game_process(game_t *);
 move_t human_move(int soc_id, c4_t board);
 move_t ai_move(int soc_id, c4_t board);
 
-void ai_notify(int soc_id, char player, move_t move);
-void human_notify(int soc_id, char player, move_t move);
+void human_notify_move(int, char, move_t);
+void human_notify_status(int, status_t);
 
 #endif
