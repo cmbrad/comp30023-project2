@@ -12,7 +12,7 @@ init_empty(c4_t board) {
 			board[r][c] = EMPTY;
 		}
 	}
-	printf("Welcome to connect-4 \n\n");
+	//printf("Welcome to connect-4 \n\n");
 }
 
 /* Apply the specified move to the board

@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
 	print_config(board);
 	while(scanf("%hd", &move))
 	{
-		printf("%lu %lu %lu\n", sizeof(int8_t), sizeof(int16_t), sizeof(int32_t));
-		printf("Send move: %hd, sizeof(move)=%lu\n", move, sizeof(move));
+		//printf("%lu %lu %lu\n", sizeof(int8_t), sizeof(int16_t), sizeof(int32_t));
+		//printf("Send move: %hd, sizeof(move)=%lu\n", move, sizeof(move));
 		move = htons(move);
 		send(s, &move, sizeof(move), 0);
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
 		move_t op_move;
 		recv(s, &op_move, sizeof(op_move), 0);
-		printf("Opponent did this: %d\n", op_move);
+		//printf("Opponent did this: %d\n", op_move);
 
 		do_move(board, op_move, RED);
 		print_config(board);

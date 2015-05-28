@@ -21,10 +21,11 @@ int main (int argc, char *argv[])
 	struct sockaddr_in server, client;
 	socklen_t len;
 	int s, new_s, server_port;
+	FILE *log_file = NULL;
 
-	FILE *log_file = fopen("log.txt", "ab+");
+	log_init(&log_file);
 
-	log_write(log_file, "Started.");
+	//log_write(log_file, "Started.");
 	if(argc == 2) {
 		server_port = atoi(argv[1]);
 	}
@@ -32,7 +33,7 @@ int main (int argc, char *argv[])
 		fprintf(stderr, "Usage :server portnumber\n");
 		exit(EXIT_FAILURE);
 	}
-	printf("Server port %i\n", server_port);
+	//printf("Server port %i\n", server_port);
 	/* Building data structures for sockets */
 	/* Identify two end points; one for the server and the other for the client when it connects to the server socket */
 	memset (&server,0, sizeof (server));
@@ -83,10 +84,10 @@ int main (int argc, char *argv[])
 		} else {
 			char *player_ip = malloc(sizeof(INET_ADDRSTRLEN));
 			inet_ntop(AF_INET,&(client.sin_addr), player_ip, INET_ADDRSTRLEN);
-			printf("connection accepted from client %s\n", player_ip);
+			//printf("connection accepted from client %s\n", player_ip);
 		
 			pthread_t thread0;
-			printf("new_s=%d\n", new_s);
+			//printf("new_s=%d\n", new_s);
 
 			player_t *player = player_create(new_s, player_ip);
 
@@ -105,7 +106,7 @@ int main (int argc, char *argv[])
 	}
 	close(s);
 
-	fclose(log_file);
+	log_destroy(log_file);
 
 	return 1;
 }

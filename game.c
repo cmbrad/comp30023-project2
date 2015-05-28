@@ -29,9 +29,9 @@ void *game_start(void *params) {
 
 	game_t *game = game_create(players, MAX_PLAYERS);
 	game->log_file = targs->log_file;
-	printf("Created game!\n");
+	//printf("Created game!\n");
 	game_process(game);
-	printf("Game over. %d won.\n", game->winner);
+	//printf("Game over. %d won.\n", game->winner);
 	return NULL;
 }
 
@@ -49,7 +49,7 @@ void game_process(game_t *game) {
 		for (int i = 0; i < game->num_players && move >= 0; i++) {
 			cur_p = game->players[i];
 			if (cur_p->get_move == NULL) {
-				printf("MOVE FUNCTION NOT SET.\n");
+				//printf("MOVE FUNCTION NOT SET.\n");
 				game->winner = -2;
 				break;
 			}
@@ -66,16 +66,16 @@ void game_process(game_t *game) {
 					if (game->players[j] == cur_p)
 						continue;
 					if (game->players[j]->notify_move == NULL) {
-						printf("Player has not given us a way to contact them. How rude.\n");
+						//printf("Player has not given us a way to contact them. How rude.\n");
 						game->winner = -2;
 						break;
 					}
 					game->players[j]->notify_move(game->players[j]->soc_id, cur_p->colour, move);
 				}
 
-				printf("move %hd\n", move);
+				//printf("move %hd\n", move);
 				if (do_move(board, move, cur_p->colour) != 1) {
-					printf("Panic\n");
+					//printf("Panic\n");
 					game->winner = -2;
 					break;
 				}
@@ -90,7 +90,7 @@ void game_process(game_t *game) {
 	}
 	
 	for (int i = 0; i < game->num_players; i++) {
-		printf("Closing %d.\n", game->players[i]->soc_id);
+		//printf("Closing %d.\n", game->players[i]->soc_id);
 		close(game->players[i]->soc_id);
 	}
 }
@@ -98,32 +98,32 @@ void game_process(game_t *game) {
 void human_notify(int soc_id, char player, move_t move)
 {
 	send(soc_id, &move, sizeof(move), 0);
-	printf("OI HUMAN\n");
+	//printf("OI HUMAN\n");
 }
 
 void ai_notify(int soc_id, char player, move_t move)
 {
-	printf("OI AI\n");
+	//printf("OI AI\n");
 }
 
 move_t human_move(int soc_id, c4_t board) {
 	move_t move = -1;
 	if (recv(soc_id, &move, sizeof(move), 0) == 0) {
-		printf("Lost connection to client.");
+		//printf("Lost connection to client.");
 		return -1;
 	}
 	return ntohs(move);
 }
 
 move_t ai_move(int soc_id, c4_t board) {
-	printf("Getting move for %d\n", soc_id);
+	//printf("Getting move for %d\n", soc_id);
 	return suggest_move(board, RED);
 }
 	
 game_t *game_create(player_t **players, int num_players) {
 	game_t *game = malloc(sizeof(*game));
 	if (game == NULL) {
-		printf("Failed to allocate memory for new game.");
+		//printf("Failed to allocate memory for new game.");
 		return NULL;
 	}
 	game->players = players;
