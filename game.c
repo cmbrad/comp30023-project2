@@ -105,8 +105,8 @@ void game_process(game_t *game) {
 						notify_players(game->players, game->num_players, STATUS_GAME_YELLOW_WIN);
 					else if (winner_found(board) == RED)
 						notify_players(game->players, game->num_players, STATUS_GAME_RED_WIN);
-				} else if (!move_possible(board)){
-					// Notify players nobody won! It's a drea
+				} else if (!move_possible(board)) {
+					// Notify players nobody won! It's a draw!
 					notify_players(game->players, game->num_players, STATUS_GAME_DRAW);
 				} else {
 					// Game still yet to be decided

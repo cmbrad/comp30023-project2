@@ -133,6 +133,9 @@ int check_win_state(int s) {
 	} else if (status == STATUS_GAME_RED_WIN) {
 		printf("Aww we lose :(\n");
 		return 1;
+	} else if (status == STATUS_GAME_DRAW) {
+		printf("It's a draw. o.o\n");
+		return 1;
 	}
 
 	return 0;
