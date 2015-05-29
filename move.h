@@ -5,4 +5,9 @@
 
 #include <stdint.h>
 
+#ifndef INCLUDE_MOVE_H
+#define INCLUDE_MOVE_H
+
 typedef int16_t move_t;
+
+#endif
