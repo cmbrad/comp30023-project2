@@ -4,9 +4,19 @@ Username : bradleyc1
 ##############
 # Question 1 #
 ##############
-a) Regular practice, TLS does this
-b) Pretty good. Sig on message could betray data
-c) Bad, can strip off signature & resign. Then send encrypted message as come from new person!
+(C) has a very large security flaw. The message is encrypted; this is great. This means that nobody
+who is not allowed to read it will be able to read it. It's also got a signature attached,
+calculated on the encrypted message. This is also good as we can verify that the message
+was definitely sent by the signer.
+The flaw comes in that the sender and the signer could be two different people.
+The sender doesn't need to know the original text of the message to sign it. As such a malicious
+attacker could intercept the packet, strip off the signature, resign it with their own
+signature and then forward it on to whomever they like. Thereby making the message
+seem like it came from the attacker and not the original sender, with the recepient being none
+the wiser.
+This could be troubling if the encrypted message is a password and the receipient uses the signature
+to work out who was trying to log in. If this was the case then the attacker could get access to the
+system without never needing to decrypt the password. 
 
 ##############
 # Question 2 #
@@ -41,13 +51,14 @@ Time to crack = 1.579209e+77 / 3.1536e+13
               = 5.0076389e+63 years
 
 c) What if your key is derived from a millisecond timer, and you know the day in which it was taken?
-86400000 possibilities
+86400000 possibilities (milliseconds in a day)
 1000000 operations per second
 = 86.4 seconds
 
 d) What if it was a millisecond timer, and you know the millennium in which it was taken?
 Possibilities: 86400000*365*1000
 = 3.1536e+13 (seconds)
-/ 1000000 ops/s
 
-31536000
+Possibilities / 1000000 ops/s
+= 31536000 seconds
+= 1 year
