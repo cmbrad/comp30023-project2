@@ -6,6 +6,7 @@
 #include <time.h>
 #include <pthread.h>
 #include "log.h"
+#include "status.h"
 
 pthread_mutex_t log_lock;
 void get_time_str(char *time_str, int size);
@@ -37,6 +38,15 @@ void log_connect(FILE *log_file, char *ip, int soc_id) {
 	pthread_mutex_lock(&log_lock);
         fprintf(stdout, "[%s](%s)(soc_id %d) client connected\n", time_str, ip, soc_id);
         fprintf(log_file, "[%s](%s)(soc_id %d) client connected\n", time_str, ip, soc_id);
+	pthread_mutex_unlock(&log_lock);
+}
+
+void log_game_over(FILE *log_file, char *ip, int soc_id, status_t code) {
+	char time_str[100];
+	get_time_str(time_str, 100);
+	pthread_mutex_lock(&log_lock);
+        fprintf(stdout, "[%s](%s)(soc_id %d) game over, code=%d\n", time_str, ip, soc_id, code);
+        fprintf(log_file, "[%s](%s)(soc_id %d) game over, code=%d\n", time_str, ip, soc_id, code);
 	pthread_mutex_unlock(&log_lock);
 }
 

@@ -23,18 +23,21 @@ void *game_start(void *params) {
 	targs_t *targs = (targs_t *)params;
 	player_t *players[MAX_PLAYERS];
 
+	// Human player
 	players[0] = targs->player;
 	players[0]->get_move = human_move;
 	players[0]->colour = YELLOW;
 	players[0]->notify_move = human_notify_move;
 	players[0]->notify_status = human_notify_status;
+
+	// AI Player
 	players[1] = player_create(-1, AI_IP);
 	players[1]->get_move = ai_move;
 	players[1]->colour = RED;
 	players[1]->notify_move = NULL;
 	players[1]->notify_status = NULL;
 
-	log_connect(targs->log_file, AI_IP, players[0]->soc_id);
+	log_connect(targs->log_file, players[0]->ip, players[0]->soc_id);
 
 	game_t *game = game_create(players, MAX_PLAYERS);
 	game->log_file = targs->log_file;
@@ -65,57 +68,57 @@ void game_process(game_t *game) {
 				break;
 			}
 			// There's no moves left and we have no winner? Draw.
-			if (!move_possible(board)) {
-				game->winner = 0;
-				break;
-			} else {
-				// Get move from current player
-				log_move(game->log_file, cur_p->ip, cur_p->soc_id, move);
-			
-				// Get an initial move for this player to make	
-				move = cur_p->get_move(cur_p->soc_id, board);
-				// Check if it's valid. If not ask for a new move.
-				// We don't allow cheating here...
-				while (do_move(board, move, cur_p->colour) != 1) {
-					// AI players have no notify methods
-					if (cur_p->notify_status != NULL)
-						cur_p->notify_status(cur_p->soc_id, STATUS_MOVE_INVALID);
-					move = cur_p->get_move(cur_p->soc_id, board);
-				}
-				// Notify the current player their move was valid (if we can anyway)
-				// The AIs should always play a valid move.
+			// Get an initial move for this player to make	
+			move = cur_p->get_move(cur_p->soc_id, board);
+			// Get move from current player
+			log_move(game->log_file, cur_p->ip, cur_p->soc_id, move);
+
+			// Check if it's valid. If not ask for a new move.
+			// We don't allow cheating here...
+			while (do_move(board, move, cur_p->colour) != 1) {
+				// AI players have no notify methods
 				if (cur_p->notify_status != NULL)
-					cur_p->notify_status(cur_p->soc_id, STATUS_MOVE_VALID);
+					cur_p->notify_status(cur_p->soc_id, STATUS_MOVE_INVALID);
+				move = cur_p->get_move(cur_p->soc_id, board);
+			}
+			// Notify the current player their move was valid (if we can anyway)
+			// The AIs should always play a valid move.
+			if (cur_p->notify_status != NULL)
+				cur_p->notify_status(cur_p->soc_id, STATUS_MOVE_VALID);
 
-				// Notify other players of move...
-				for (int j = 0; j < game->num_players; j++) {
-					if (game->players[j] == cur_p)
-						continue;
-					// AI players might not have notify functions implemented
-					if (game->players[j]->notify_move != NULL) {
-						game->players[j]->notify_move(game->players[j]->soc_id, cur_p->colour, move);
-					}
+			// Notify other players of move...
+			for (int j = 0; j < game->num_players; j++) {
+				if (game->players[j] == cur_p)
+					continue;
+				// AI players might not have notify functions implemented
+				if (game->players[j]->notify_move != NULL) {
+					game->players[j]->notify_move(game->players[j]->soc_id, cur_p->colour, move);
 				}
+			}
 
-				// Have we finished this game? yeah/nah
-				if (winner_found(board) == YELLOW || winner_found(board) == RED) {
-					game->winner = winner_found(board);
-					// Notify players of the winner, guess they'd want to know
-					if (winner_found(board) == YELLOW)
-						notify_players(game->players, game->num_players, STATUS_GAME_YELLOW_WIN);
-					else if (winner_found(board) == RED)
-						notify_players(game->players, game->num_players, STATUS_GAME_RED_WIN);
-				} else if (!move_possible(board)) {
-					// Notify players nobody won! It's a draw!
-					notify_players(game->players, game->num_players, STATUS_GAME_DRAW);
-				} else {
-					// Game still yet to be decided
-					notify_players(game->players, game->num_players, STATUS_GAME_ACTIVE);
+			// Have we finished this game? yeah/nah
+			if (winner_found(board) == YELLOW || winner_found(board) == RED) {
+				game->winner = winner_found(board);
+				// Notify players of the winner, guess they'd want to know
+				if (winner_found(board) == YELLOW) {
+					notify_players(game->players, game->num_players, STATUS_GAME_YELLOW_WIN);
+					game->winner = STATUS_GAME_YELLOW_WIN;
+				} else if (winner_found(board) == RED) {
+					notify_players(game->players, game->num_players, STATUS_GAME_RED_WIN);
+					game->winner = STATUS_GAME_RED_WIN;
 				}
+			} else if (!move_possible(board)) {
+				// Notify players nobody won! It's a draw!
+				notify_players(game->players, game->num_players, STATUS_GAME_DRAW);
+				game->winner = STATUS_GAME_DRAW;
+			} else {
+				// Game still yet to be decided
+				notify_players(game->players, game->num_players, STATUS_GAME_ACTIVE);
 			}
 		}
 	}
 
+	log_game_over(game->log_file, game->players[0]->ip, game->players[0]->soc_id, game->winner); 
 	// Game is over. Close all the sockets!	
 	for (int i = 0; i < game->num_players; i++) {
 		close(game->players[i]->soc_id);
