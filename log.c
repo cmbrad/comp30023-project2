@@ -14,6 +14,8 @@ void get_time_str(char *time_str, int size);
 int log_init(FILE **log_file) {
 	*log_file = fopen("log.txt", "ab+");
 
+	// Disable buffering
+	setbuf(*log_file, NULL);
 	if (pthread_mutex_init(&log_lock, NULL) != 0)
 		return 1;
 	return 0;

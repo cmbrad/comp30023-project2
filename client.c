@@ -113,18 +113,30 @@ void send_our_move(int s, move_t move) {
 	send(s, &move, sizeof(move), 0);
 }
 
+/*
+ * Gets a move from the server for the opponent
+ * We assume the server has validated it.
+ */
 move_t get_opponent_move(int s) {
 	move_t move;
 	recv(s, &move, sizeof(move), 0);
 	return ntohs(move);
 }
 
+/*
+ * Gets a status update from the server, ie, move invalid
+ * or game over
+ */
 status_t get_status_update(int s) {
 	status_t status;
 	recv(s, &status, sizeof(status), 0);
 	return ntohs(status);
 }
 
+/*
+ * Consume a status update from the server to see if
+ * the game is over.
+ */
 int check_win_state(int s) {
 	status_t status = get_status_update(s);
 	if (status == STATUS_GAME_YELLOW_WIN) {
