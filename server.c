@@ -88,13 +88,14 @@ int main (int argc, char *argv[])
 
 	// Active games.
 	
-
-	while (1) {
+	// Keep accepting new games while our socket works
+	int accept_new = 1;
+	while (accept_new) {
 		len = sizeof(client);
 
 		if ((new_s = accept(s, (struct sockaddr *)&client, &len)) == -1) {
 			perror("Accept failed");
-			exit(EXIT_FAILURE);
+			accept_new = 0;
 		} else {
 			char *player_ip = malloc(sizeof(INET_ADDRSTRLEN));
 			inet_ntop(AF_INET,&(client.sin_addr), player_ip, INET_ADDRSTRLEN);
@@ -112,6 +113,10 @@ int main (int argc, char *argv[])
 		}
 	}
 	close(s);
+
+	// Make sure all threads are finished
+	for (int i = 0; i < active_cnt; i++)
+		pthread_join(active_games[i], NULL);
 
 	log_destroy(log_file);
 
