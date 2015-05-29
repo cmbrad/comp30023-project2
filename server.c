@@ -37,7 +37,13 @@ int main (int argc, char *argv[])
 	int active_cnt = 0;
 	log_init(&log_file);
 
+	// Setup signal handler so
+	// we still log on CTRL+C
 	signal(SIGINT, closing);
+
+	// Ignore SIGPIPE, otherwise clients
+	// behaving badly = crashed server
+	signal(SIGPIPE, SIG_IGN);
 
 	//log_write(log_file, "Started.");
 	if(argc == 2) {
