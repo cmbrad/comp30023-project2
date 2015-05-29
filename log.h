@@ -10,9 +10,6 @@
 #ifndef INCLUDE_LOG_H
 #define INCLUDE_LOG_H
 
-#ifndef INCLUDE_LOG_H
-#define INCLUDE_LOG_H
-
 int log_init(FILE **log_file);
 void log_destroy(FILE *log_file);
 
