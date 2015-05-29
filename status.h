@@ -5,6 +5,9 @@
 
 #include <stdint.h>
 
+#ifndef INCLUDE_STATUS_H
+#define INCLUDE_STATUS_H
+
 #define STATUS_MOVE_INVALID	1
 #define STATUS_MOVE_VALID	2
 #define STATUS_GAME_ACTIVE	3
@@ -13,3 +16,5 @@
 #define STATUS_GAME_DRAW	6
 
 typedef int16_t status_t;
+
+#endif

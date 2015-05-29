@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c11
+CFLAGS = -Wall -std=c99 
 LDFLAGS = -lm -lpthread
 
 S_SRC = game.c player.c server.c connect4.c log.c

@@ -94,6 +94,7 @@ int main (int argc, char *argv[])
 
 		if ((new_s = accept(s, (struct sockaddr *)&client, &len)) == -1) {
 			perror("Accept failed");
+			printf("...\n");
 			exit(EXIT_FAILURE);
 		} else {
 			char *player_ip = malloc(sizeof(INET_ADDRSTRLEN));
