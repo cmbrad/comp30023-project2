@@ -30,7 +30,9 @@ void *game_start(void *params) {
 	players[0]->notify_move = human_notify_move;
 	players[0]->notify_status = human_notify_status;
 
-	// AI Player
+	// AI Player. Do setup outside of
+	// player_create due to the way initial
+	// information from the server works.
 	players[1] = player_create(-1, AI_IP);
 	players[1]->get_move = ai_move;
 	players[1]->colour = RED;
@@ -39,11 +41,21 @@ void *game_start(void *params) {
 
 	log_connect(targs->log_file, players[0]->ip, players[0]->soc_id);
 
+	// Create the game and tell it about our log file.
+	// Assume game has the maximum amount of playesr
 	game_t *game = game_create(players, MAX_PLAYERS);
 	game->log_file = targs->log_file;
-	//printf("Created game!\n");
+	// Run the game
 	game_process(game);
-	//printf("Game over. %d won.\n", game->winner);
+
+	// Game is over!
+	// Clean up after ourselves
+	for (int i = 0; i < game->num_players; i++)
+		free(game->players[i]);
+
+	free(game);
+	free(targs);
+
 	return NULL;
 }
 

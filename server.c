@@ -1,6 +1,7 @@
 /*
  * Author : Christopher Bradley <635847>
  * Contact: bradleyc1@student.unimelb.edu.au
+ * Based on code provided by Michael Kirley
  */
 
 #include <stdlib.h>
@@ -33,8 +34,12 @@ int main (int argc, char *argv[])
 	socklen_t len;
 	int s, new_s, server_port;
 
+	// Area to store games, of course none are active on start
 	pthread_t active_games[MAX_GAMES];
 	int active_cnt = 0;
+
+	// Initialise the log file
+	// Open file descriptors and setup mutex
 	log_init(&log_file);
 
 	// Setup signal handler so
@@ -45,7 +50,6 @@ int main (int argc, char *argv[])
 	// behaving badly = crashed server
 	signal(SIGPIPE, SIG_IGN);
 
-	//log_write(log_file, "Started.");
 	if(argc == 2) {
 		server_port = atoi(argv[1]);
 	}
@@ -68,20 +72,18 @@ int main (int argc, char *argv[])
 	server.sin_port = htons (server_port); 
 
 	/* Preliminary server steps: Setup: creation of passive open socket*/
-
 	if ((s = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
 		perror ("Error creating socket");
 		exit (EXIT_FAILURE);
 	}
 
 	/* Bind the socket to local address */
-	if (bind(s, (struct sockaddr *) &server, sizeof (server)) == -1)	{
+	if (bind(s, (struct sockaddr *) &server, sizeof (server)) == -1) {
 		perror ("bind");
 		exit (EXIT_FAILURE);
 	}
 
-	/* Sets the maximum number of pending connections to be allowed, in our case this number is 10 */
-
+	// Here 5 is the amount of pending connections, that'll do nicely.
 	if (listen(s, 5) == -1) {
 		perror("listen");
 		exit(1);
@@ -89,10 +91,6 @@ int main (int argc, char *argv[])
 	else {
 		printf("Listening on port %d...\n", ntohs(server.sin_port));
 	}
-	/* The main loop of the program*/
-	/* Wait for connection then receive and print text */
-
-	// Active games.
 	
 	// Keep accepting new games while our socket works
 	int accept_new = 1;
@@ -103,18 +101,21 @@ int main (int argc, char *argv[])
 			perror("Accept failed");
 			accept_new = 0;
 		} else {
+			// Decode player IP
 			char *player_ip = malloc(sizeof(INET_ADDRSTRLEN));
 			inet_ntop(AF_INET,&(client.sin_addr), player_ip, INET_ADDRSTRLEN);
-			//printf("connection accepted from client %s\n", player_ip);
-		
-			//printf("new_s=%d\n", new_s);
 
+			// Create a new human player to send to the game,
+			// At the moment this is all we know
 			player_t *player = player_create(new_s, player_ip);
-
+			// Make a targs block to send to the game thread,
+			// this contains the player and the log file
 			targs_t *targs = malloc(sizeof(*targs));
 			targs->player = player;
 			targs->log_file = log_file;
 
+			// Create a thread to run the game!
+			// only one human player so we can pretty much ignore it now
 			pthread_create(&active_games[active_cnt++], NULL, game_start, targs);
 		}
 	}
