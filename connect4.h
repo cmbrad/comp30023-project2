@@ -1,6 +1,9 @@
 /* Connect 4: a simple text based implementation */
 /* Implementation by Michael */
 
+#ifndef INCLUDE_CONNECT4_H
+#define INCLUDE_CONNECT4_H
+
 	/* number of columns in the game */
 #define WIDTH		7
 
@@ -37,3 +40,5 @@ char winner_found(c4_t);
 int rowformed(c4_t,  int r, int c);
 int explore(c4_t, int r_fix, int c_fix, int r_off, int c_off);
 int suggest_move(c4_t board, char colour);
+
+#endif
