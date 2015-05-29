@@ -1,3 +1,9 @@
+/* Author: Michael Kirley
+ * Modified by Chris Bradley
+ * Thanks Michael!
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
